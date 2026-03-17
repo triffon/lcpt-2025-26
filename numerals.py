@@ -57,3 +57,23 @@ cfactstep = lambda p: \
                    (cmult(cs(cleft(p)))(cright(p)))
 
 cfact = lambda n: cright(n(cfactstep)(cpair(c0)(c1)))
+
+Y = lambda F: (lambda x: F(x(x)))(lambda x: F(x(x)))
+
+cgammafact = lambda f: lambda n: \
+               ciszero(n)(c1) \
+                         (cmult(n)(f(cp(n))))
+
+
+cgammafactt = lambda f: lambda n: \
+                ciszero(n)(lambda z: c1(z)) \
+                          (lambda z: cmult(n)(f(cp(n)))(z))
+
+# cfactt = Y(cgammafact)
+
+bad = lambda x: x / 0
+
+Z = lambda F: (lambda x: F(lambda z: x(x)(z))) \
+              (lambda x: F(lambda z: x(x)(z)))
+
+cfactt = Z(cgammafactt)
