@@ -29,22 +29,30 @@ tk(fun(α,fun(β,α))).
 tkstar(fun(α,fun(β,β))).
 tc(fun(fun(α,α),fun(α,α))).
 ts(fun(fun(α,fun(β,γ)),fun(fun(α,β),fun(α,γ)))).
+ty(fun(fun(α,α),α)).
+tb1(fun(α,fun(fun(α,β),fun(fun(β,α),β)))).
+tb2(fun(fun(α,β),fun(fun(β,α),β))).
 
 % decompose(+T, -Ρs, +A).
 decompose(A, [], A).
 decompose(fun(Ρ,T), [Ρ|Ρs], A) :- decompose(T, Ρs, A).
 
 % typesall(+Γ, -Ms, +Ρs).
-typesall(_,[],[]).
-typesall(Γ, [M|Ms], [Ρ|Ρs]) :- types(Γ, M, Ρ), typesall(Γ, Ms, Ρs).
+typesall(_, _, [], []).
+typesall(V, Γ, [M|Ms], [Ρ|Ρs]) :- types(V, Γ, M, Ρ), typesall(V, Γ, Ms, Ρs).
 
 % compose(+X, +Ms, -N).
 compose(X, [], X).
 compose(X, [M|Ms], N) :- compose(app(X,M), Ms, N).
 
 % types(+Γ,-M,+T).
-types(Γ,λ(X,N),fun(Ρ,Σ)) :- types([(X,Ρ)|Γ],N,Σ).
-types(Γ,N,A)             :- member((X,T),Γ),
+types(V,Γ,λ(X,N),fun(Ρ,Σ)) :- types(V,[(X,Ρ)|Γ],N,Σ).
+types(V,Γ,N,A)             :-
+                            % все още не сме търсили обитател на този тип
+                            not(member(A,V)),
+
+                            % избираме си някоя типова декларация от контекста
+                            member((X,T),Γ),
                             % ако искаме наведнъж
                             % typesall(Γ,Ms,Ρs,X,N,A,T).
 
@@ -52,9 +60,9 @@ types(Γ,N,A)             :- member((X,T),Γ),
                             decompose(T,Ρs,A),
 
                             % търся решения на задачите types(Γ,Mi,ρi)
-                            typesall(Γ,Ms,Ρs),
+                            typesall([A|V],Γ,Ms,Ρs),
 
                             % след това задавам N = app(app(app(x,M1),M2),...,Mn)
                             compose(X,Ms,N).
 
-types(M,T) :- types([],M,T).
+types(M,T) :- types([],[],M,T).
