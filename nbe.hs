@@ -25,18 +25,19 @@ k = L "x" $ L "y" x
 c n = L "f" $ L "x" $ iterate (f :@) x !! n
 cplus = L "m" $ L "n" $ L "f" $ L "x"
            (m :@ f :@ (n :@ f :@ x))
+cmult = L "m" $ L "n" $ L "f" (m :@ (n :@ f))
 
 data H = Base Λ | Fun { fun :: H -> IO H }
 
-type Valuation = String -> H
+type Valuation = String -> IO H
 
 modify :: Valuation -> String -> H -> Valuation
 modify ξ x a y
- | x == y    = a
+ | x == y    = return a
  | otherwise = ξ y
 
 evaluate :: Λ -> Valuation -> IO H
-evaluate (Var x)    ξ = return $ ξ x
+evaluate (Var x)    ξ = ξ x
 {-
 evaluate (m₁ :@ m₂) ξ =  f $ evaluate m₂ ξ
   where Fun f = evaluate m₁ ξ
@@ -70,9 +71,19 @@ genSym = do
 -}
 genSym = (("x" ++) . show . hashUnique) <$> newUnique
 
-nbe :: Λ -> T -> IO Λ
-nbe m τ = evaluate m error >>= (⇓ τ)
+type Context = String -> T
 
-ii = nbe (i :@ i) tid
-kii = nbe (k :@ i :@ i) tid
-c8 = nbe (cplus :@ c 3 :@ c 5) tn
+nbe :: Context -> Λ -> T -> IO Λ
+nbe γ m τ = evaluate m (\x -> Var x ⇑ γ x) >>= (⇓ τ)
+
+empty = error
+γ "f" = tid
+γ "x" = α
+γ _   = error "Invalid variable"
+
+ii = nbe empty (i :@ i) tid
+kii = nbe empty (k :@ i :@ i) tid
+c8 = nbe empty (cplus :@ c 3 :@ c 5) tn
+f8x = nbe γ (cplus :@ c 3 :@ c 5 :@ f :@ x) α
+cM = nbe empty (cmult :@ c 1000 :@ c 1000) tn
+test = (/= x) <$> cM
