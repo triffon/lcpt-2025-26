@@ -1,3 +1,5 @@
+import Data.Unique
+
 data T = TVar String | T :=> T
   deriving (Eq, Ord, Show, Read)
 
@@ -24,7 +26,7 @@ c n = L "f" $ L "x" $ iterate (f :@) x !! n
 cplus = L "m" $ L "n" $ L "f" $ L "x"
            (m :@ f :@ (n :@ f :@ x))
 
-data H = Base Λ | Fun { fun :: H -> H }
+data H = Base Λ | Fun { fun :: H -> IO H }
 
 type Valuation = String -> H
 
@@ -33,25 +35,43 @@ modify ξ x a y
  | x == y    = a
  | otherwise = ξ y
 
-evaluate :: Λ -> Valuation -> H
-evaluate (Var x)    ξ = ξ x
+evaluate :: Λ -> Valuation -> IO H
+evaluate (Var x)    ξ = return $ ξ x
 {-
 evaluate (m₁ :@ m₂) ξ =  f $ evaluate m₂ ξ
   where Fun f = evaluate m₁ ξ
 -}
-evaluate (m₁ :@ m₂) ξ =  fun (evaluate m₁ ξ) $ evaluate m₂ ξ
-evaluate (L x n)    ξ = Fun (\a -> evaluate n $ modify ξ x a)
+evaluate (m₁ :@ m₂) ξ =  do
+  f <- evaluate m₁ ξ
+  a <- evaluate m₂ ξ
+  fun f a
+evaluate (L x n)    ξ = return $ Fun (\a -> evaluate n $ modify ξ x a)
 
-(⇑) :: Λ -> T -> H
-m ⇑ (TVar _)  = Base m
-m ⇑ (ρ :=> σ) = Fun (\a -> m :@ (a ⇓ ρ) ⇑ σ)  
+(⇑) :: Λ -> T -> IO H
+m ⇑ (TVar _)  = return $ Base m
+m ⇑ (ρ :=> σ) = return $ Fun (\a -> do
+                                 aρ <- a ⇓ ρ
+                                 m :@ aρ ⇑ σ)
 
-(⇓) :: H -> T -> Λ
-(Base m) ⇓ (TVar _)  = m
-(Fun f)  ⇓ (ρ :=> σ) = L "x" ((f (Var "x" ⇑ ρ)) ⇓ σ)
+(⇓) :: H -> T -> IO Λ
+(Base m) ⇓ (TVar _)  = return m
+(Fun f)  ⇓ (ρ :=> σ) = do
+  x <- genSym
+  xρ <- Var x ⇑ ρ
+  a <- f xρ
+  aσ <- a ⇓ σ
+  return $ L x aσ
 
-nbe :: Λ -> T -> Λ
-nbe m τ = (evaluate m error) ⇓ τ
+genSym :: IO String
+{-
+genSym = do
+  n <- hashUnique <$> newUnique
+  return $ "x" ++ show n
+-}
+genSym = (("x" ++) . show . hashUnique) <$> newUnique
+
+nbe :: Λ -> T -> IO Λ
+nbe m τ = evaluate m error >>= (⇓ τ)
 
 ii = nbe (i :@ i) tid
 kii = nbe (k :@ i :@ i) tid
