@@ -1,4 +1,5 @@
 import Data.Unique
+import Control.Monad
 
 data T = TVar String | T :=> T
   deriving (Eq, Ord, Show, Read)
@@ -86,4 +87,4 @@ kii = nbe empty (k :@ i :@ i) tid
 c8 = nbe empty (cplus :@ c 3 :@ c 5) tn
 f8x = nbe γ (cplus :@ c 3 :@ c 5 :@ f :@ x) α
 cM = nbe empty (cmult :@ c 1000 :@ c 1000) tn
-test = (/= x) <$> cM
+test = (/= x) <$!> cM
