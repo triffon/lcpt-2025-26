@@ -21,10 +21,10 @@ Section Example.
   Compute plus2 2.
   Check n > 2.
   Check Prop.
-  Definition conj (A B : Prop) := forall (X : Prop), ((A -> B -> X) -> X).
-  Check conj.
-  Definition conjSet (A B : Set) := forall (X : Set), ((A -> B -> X) -> X).
-  Check conjSet.
+  Definition myconj (A B : Prop) := forall (X : Prop), ((A -> B -> X) -> X).
+  Check myconj.
+  Definition myConjSet (A B : Set) := forall (X : Set), ((A -> B -> X) -> X).
+  Check myConjSet.
   Compute n > 2.
   Check lt n 3.
   Check lt.
@@ -117,9 +117,9 @@ Section PropMinLog.
   Print and_ind.
   
   Definition ConjunctionIsCommutativeTerm : A /\ B -> B /\ A :=
-    fun u : A /\ B => Logic.conj
-                   (match u with | Logic.conj v w => w end)
-                   (match u with | Logic.conj v w => v end).
+    fun u : A /\ B => conj
+                   (match u with | conj v w => w end)
+                   (match u with | conj v w => v end).
                    
   Print ConjunctionIsCommutativeTerm. 
   
