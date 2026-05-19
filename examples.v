@@ -223,3 +223,23 @@ Section PredMinLog.
 
   Compute RIsReflexive.
 End PredMinLog.
+
+Section PredClassLog.
+  Variable bar : Set.
+  Variable drunkard : bar.
+  Variable drinks : bar -> Prop.
+
+  Hypothesis Stab : forall (A : Prop), ~~A -> A.
+
+  Theorem drinkersParadox : exists x, drinks x -> forall y, drinks y.
+    apply Stab; intro notDrinkersParadox.
+    apply notDrinkersParadox.
+    exists drunkard; intro drunkardDrinks.
+    intro y.
+    apply Stab; intro notDrinksY.
+    apply notDrinkersParadox.
+    exists y.
+    intro drinksY.
+    exfalso; apply notDrinksY; assumption.
+  Qed.
+End PredClassLog.
