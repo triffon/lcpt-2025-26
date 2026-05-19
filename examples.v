@@ -186,3 +186,40 @@ Section PropIntLog.
 
   Print Task.
 End PropIntLog.
+
+Section PredMinLog.
+  Variable α : Set.
+  Variable A : α -> Prop.
+  Variable x : α.
+  Check A x.
+
+  Lemma ForallImpliesExists : (forall x, A x) -> exists x, A x.
+    intro u.
+    exists x.
+    apply u.
+  Defined.
+
+  Print ForallImpliesExists.
+
+  Print ex.
+
+  Variable R : α -> α -> Prop.
+
+  Hypothesis RIsSymmetric  : forall x y, R x y -> R y x.
+  Hypothesis RIsTransitive : forall x y z, R x y -> R y z -> R x z.
+  Hypothesis RIsTotal : forall x, exists y, R x y.
+
+  Theorem RIsReflexive : forall x, R x x.
+    intro x0.
+    (* знам, че ∃ y, така че R x0 y *)
+    elim (RIsTotal x0); intros y Rx0y.
+    apply RIsTransitive with (y := y).
+      (* цел 1 *)
+      assumption.
+
+      (* цел 2 *)
+      apply RIsSymmetric; assumption.
+  Defined.
+
+  Compute RIsReflexive.
+End PredMinLog.
