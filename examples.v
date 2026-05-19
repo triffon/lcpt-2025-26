@@ -57,3 +57,90 @@ Section Example.
   Print twole4.
   Print le.
 End Example.
+
+Section PropMinLog.
+  Variable A : Prop.
+  Goal A -> A.
+    intro u.
+    apply u.
+    Show Proof.
+  (* Qed. *)
+  Save Identity.
+  Check Identity.
+  Print Identity.
+  Definition IdentityTerm : A -> A := fun (u : A) => u.
+  Check IdentityTerm.
+  Print IdentityTerm.
+  
+  Variable B : Prop.
+  Lemma K : A -> B -> A.
+    intros u v.
+    apply u.
+  Qed.
+  Print K.
+  
+  Definition KTerm : A -> B -> A := fun (u : A) (v : B) => u.
+  Print KTerm.
+  
+  Variable C : Prop.
+  Lemma S : (A -> B -> C) -> (A -> B) -> A -> C.
+    intros u v w.
+    apply u.
+    apply w.
+    apply v.
+    apply w.
+  Qed.
+
+  Lemma S2 : (A -> B -> C) -> (A -> B) -> A -> C.
+    intros u v w.
+    apply u; [ assumption | apply v; assumption ].
+  Qed.
+  Print S.
+  Print S2.
+
+  Definition STerm : (A -> B -> C) -> (A -> B) -> A -> C := 
+    fun u v w => u w (v w).
+  Print STerm.
+    
+  Check and.
+  Print and.
+  Check and A B.
+  Lemma ConjunctionIsCommutative : A /\ B -> B /\ A.
+    intro u.
+    split.
+      apply u.
+      apply u.
+  Qed.
+  
+  Print ConjunctionIsCommutative.
+  
+  Print and_ind.
+  
+  Definition ConjunctionIsCommutativeTerm : A /\ B -> B /\ A :=
+    fun u : A /\ B => Logic.conj
+                   (match u with | Logic.conj v w => w end)
+                   (match u with | Logic.conj v w => v end).
+                   
+  Print ConjunctionIsCommutativeTerm. 
+  
+  Check or.
+  Print or.
+  
+  Lemma DisjunctionIsCommutative : A \/ B -> B \/ A.
+    intro u.
+    elim u.
+      intro v.
+      right.
+      assumption.
+      
+      (* аналогично *)
+      intro w.
+      left.
+      assumption.
+  Qed.
+  
+  Print or_ind.
+  
+  Print DisjunctionIsCommutative.
+  
+End PropMinLog.
