@@ -71,17 +71,17 @@ Section PropMinLog.
   Definition IdentityTerm : A -> A := fun (u : A) => u.
   Check IdentityTerm.
   Print IdentityTerm.
-  
+
   Variable B : Prop.
   Lemma K : A -> B -> A.
     intros u v.
     apply u.
   Qed.
   Print K.
-  
+
   Definition KTerm : A -> B -> A := fun (u : A) (v : B) => u.
   Print KTerm.
-  
+
   Variable C : Prop.
   Lemma S : (A -> B -> C) -> (A -> B) -> A -> C.
     intros u v w.
@@ -98,10 +98,10 @@ Section PropMinLog.
   Print S.
   Print S2.
 
-  Definition STerm : (A -> B -> C) -> (A -> B) -> A -> C := 
+  Definition STerm : (A -> B -> C) -> (A -> B) -> A -> C :=
     fun u v w => u w (v w).
   Print STerm.
-    
+
   Check and.
   Print and.
   Check and A B.
@@ -111,36 +111,58 @@ Section PropMinLog.
       apply u.
       apply u.
   Qed.
-  
+
   Print ConjunctionIsCommutative.
-  
+
   Print and_ind.
-  
+
   Definition ConjunctionIsCommutativeTerm : A /\ B -> B /\ A :=
     fun u : A /\ B => conj
                    (match u with | conj v w => w end)
                    (match u with | conj v w => v end).
-                   
-  Print ConjunctionIsCommutativeTerm. 
-  
+
+  Print ConjunctionIsCommutativeTerm.
+
   Check or.
   Print or.
-  
+
   Lemma DisjunctionIsCommutative : A \/ B -> B \/ A.
     intro u.
     elim u.
       intro v.
       right.
       assumption.
-      
+
       (* аналогично *)
       intro w.
       left.
       assumption.
   Qed.
-  
+
   Print or_ind.
-  
+
   Print DisjunctionIsCommutative.
-  
+
 End PropMinLog.
+
+Section PropClassLog.
+  Hypothesis Stab : forall (A : Prop), ~~A -> A.
+  Variable A : Prop.
+  Check ~A.
+  Check not.
+  Print not.
+  Check False.
+
+  Lemma LEM : A \/ ~A.
+    apply Stab; intro u.
+    apply u.
+    right.
+    intro v.
+    apply u.
+    left.
+    assumption.
+  Defined.
+
+  Print LEM.
+  Compute LEM.
+End PropClassLog.
