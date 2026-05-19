@@ -166,3 +166,23 @@ Section PropClassLog.
   Print LEM.
   Compute LEM.
 End PropClassLog.
+
+Section PropIntLog.
+  Variable A B : Prop.
+  Lemma Task : (~~A -> ~~B) -> ~~(A -> B).
+  (* tauto. *)
+    intros u v.
+    apply u.
+      (* goal 1 *)
+      intro w.
+      apply v.
+      intro a.
+      exfalso; apply w; assumption.
+      (* goal 2 *)
+      intro w.
+      apply v.
+      intro; assumption.
+  Defined.
+
+  Print Task.
+End PropIntLog.
