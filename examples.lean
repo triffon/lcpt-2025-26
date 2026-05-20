@@ -59,12 +59,11 @@ theorem ForallImpliesExists : (∀ x, A x) → (∃ x, A x) := by
   apply u
 
 variable (bar : Type)
-variable (drunkard : bar)
 variable (drinks : bar -> Prop)
 
-theorem drinkersParadox : ∀ (drunkard : bar), ∃ x, drinks x → ∀ y, drinks y :=
-  fun drunkard => Stab (fun notDrinkersParadox =>
-                         (notDrinkersParadox
-                           (Exists.intro drunkard (fun _ y =>
-                             (Stab (fun notDrinksY => (notDrinkersParadox
-                                (Exists.intro y (fun drinksY => (False.elim (notDrinksY drinksY)))))))))))
+theorem drinkersParadox (drunkard : bar) : ∃ x, drinks x → ∀ y, drinks y :=
+  Stab (fun notDrinkersParadox =>
+        (notDrinkersParadox
+          (Exists.intro drunkard (fun _ y =>
+            (Stab (fun notDrinksY => (notDrinkersParadox
+              (Exists.intro y (fun drinksY => (False.elim (notDrinksY drinksY)))))))))))
