@@ -67,3 +67,42 @@ theorem drinkersParadox (drunkard : bar) : ∃ x, drinks x → ∀ y, drinks y :
           (Exists.intro drunkard (fun _ y =>
             (Stab (fun notDrinksY => (notDrinkersParadox
               (Exists.intro y (fun drinksY => (False.elim (notDrinksY drinksY)))))))))))
+
+theorem drinkersParadoxClassical (drunkard : bar) : ∃ x, drinks x → ∀ y, drinks y := by
+  -- We start by splitting the world into two classical possibilities:
+  -- Either everyone drinks, or not everyone drinks.
+  by_cases h : ∀ y, drinks y
+
+  · -- CASE 1: Everyone in the bar drinks.
+    -- Since the bar isn't empty (we know `drunkard` is there), we can pick anyone.
+    -- We choose the `drunkard` as our witness.
+    exists drunkard
+
+    -- We need to prove: drinks drunkard → ∀ y, drinks y
+    -- So, we assume the drunkard drinks.
+    intro _
+
+    -- We must prove everyone drinks.
+    -- But we already assumed that in this case (`h`), so we just use it exactly.
+    exact h
+
+  · -- CASE 2: Not everyone drinks.
+    -- Classically, "not everyone drinks" means "there exists someone who does not drink."
+    have h_exists : ∃ y, ¬ drinks y := Classical.not_forall.mp h
+
+    -- Let's extract that specific person. Let `p` be the person,
+    -- and `hp` be the proof that they don't drink.
+    have ⟨p, hp⟩ := h_exists
+
+    -- We pick this specific non-drinking person `p` as our witness!
+    exists p
+
+    -- We need to prove: drinks p → ∀ y, drinks y
+    -- We start by assuming `p` drinks.
+    intro hp_drinks
+
+    -- This creates a logical explosion. `hp_drinks` says `p` drinks,
+    -- but `hp` says `p` does not drink.
+    -- Since a false premise implies anything, the proof is complete.
+    contradiction
+
