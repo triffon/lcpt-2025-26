@@ -30,6 +30,10 @@ theorem ConjunctionIsCommutative : A ∧ B → B ∧ A := by
                  . apply w
                  . apply v
 
+theorem ConjunctionIsCommutative2 : A ∧ B → B ∧ A := by
+  intro ⟨hA, hB⟩
+  exact ⟨hB, hA⟩
+
 theorem DisjunctionIsCommutative : A ∨ B → B ∨ A := by
   intro u
   cases u with
